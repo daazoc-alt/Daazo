@@ -1264,13 +1264,45 @@ async def on_ready():
 
 @bot.command(name='balance')
 @has_moderator_role()
-async def balance_command(ctx):
+async def balance_command(ctx, member: discord.Member = None):
     """Check current casino balance."""
-    embed = discord.Embed(
-        title="💰 Casino Balance",
-        description=f"**Current Balance:** ₹{casino_data['balance']:,}",
-        color=0xffd700
-    )
+    if member:
+        # Check another user's balance (for moderation purposes)
+        embed = discord.Embed(
+            title="💰 Casino Balance Check",
+            description=f"**{member.display_name}'s Balance:** ₹{casino_data['balance']:,}",
+            color=0xffd700
+        )
+    else:
+        embed = discord.Embed(
+            title="💰 Casino Balance",
+            description=f"**Current Balance:** ₹{casino_data['balance']:,}",
+            color=0xffd700
+        )
+    await ctx.send(embed=embed)
+
+@bot.command(name='resetbalance')
+@has_main_moderator_role()
+async def reset_balance_command(ctx, member: discord.Member, amount: int):
+    """Reset a user's casino balance (Main Moderator only)."""
+    try:
+        await ctx.message.delete()
+        if amount < 0:
+            await ctx.send("❌ Balance amount must be positive!", delete_after=5)
+            return
+        
+        old_balance = casino_data['balance']
+        casino_data['balance'] = amount
+        
+        embed = discord.Embed(
+            title="💰 Balance Reset",
+            description=f"**{member.display_name}'s balance has been reset**\n\n**Old Balance:** ₹{old_balance:,}\n**New Balance:** ₹{amount:,}",
+            color=0x00ff00
+        )
+        await ctx.send(embed=embed, delete_after=10)
+        await log_command(ctx, "&resetbalance", f"Reset {member.mention}'s balance from ₹{old_balance:,} to ₹{amount:,}")
+    except discord.Forbidden:
+        await ctx.send("❌ I don't have permission to delete messages.")
 
 # =================================================================================================
 # CASINO SYSTEM - BlackJack Statistics Tracker (FINAL CORRECTED VERSION)
@@ -1758,8 +1790,8 @@ class GameView(discord.ui.View):
             await interaction.response.send_message("❌ Insufficient balance to split!", ephemeral=True)
             return
 
-        # Start split sequence
-        casino_data["balance"] -= self.bet_amount  # Double the bet
+        # Split: deduct additional bet amount for second hand
+        casino_data["balance"] -= self.bet_amount
         casino_data['split_hands_completed'] = 0
 
         embed = discord.Embed(
@@ -1779,7 +1811,7 @@ class GameView(discord.ui.View):
             await interaction.response.send_message("❌ Insufficient balance to double down!", ephemeral=True)
             return
 
-        # Double the bet
+        # Double down: deduct additional bet amount
         casino_data["balance"] -= self.bet_amount
         doubled_amount = self.bet_amount * 2
 
@@ -1827,23 +1859,27 @@ class GameView(discord.ui.View):
         casino_data["session_games"].append(game_data)
         casino_data["games"].append(game_data)
 
-        # Update balance based on outcome
+        # Update balance based on outcome (bet already deducted when placed)
         if outcome == "win":
-            casino_data["balance"] += amount
-            balance_change = f"+₹{amount:,}"
+            # Win: return bet + winnings (2x total)
+            casino_data["balance"] += amount * 2
+            balance_change = f"+₹{amount * 2:,}"
             color = 0x00ff00
             outcome_text = "🟢 WIN"
         elif outcome == "lose":
-            casino_data["balance"] -= amount
+            # Lose: bet already deducted, nothing more to do
             balance_change = f"-₹{amount:,}"
             color = 0xff0000
             outcome_text = "🔴 LOSE"
         elif outcome == "tie":
+            # Tie: return bet amount (push)
+            casino_data["balance"] += amount
             balance_change = "₹0 (Push)"
             color = 0xffaa00
             outcome_text = "🟡 TIE"
         elif outcome == "blackjack":
-            payout = int(amount * 1.5)
+            # Blackjack: return bet + 1.5x winnings (2.5x total)
+            payout = int(amount * 2.5)
             casino_data["balance"] += payout
             balance_change = f"+₹{payout:,}"
             color = 0x00ff00
@@ -2013,14 +2049,15 @@ class GameCashOutModal(discord.ui.Modal):
             # Add cashout amount back to balance
             casino_data["balance"] += cashout_amount
 
-            # Remaining amount is lost            remaining_amount = self.bet_amount - cashout_amount
+            # Remaining amount is lost (bet was already deducted)
+            remaining_amount = self.bet_amount - cashout_amount
 
             # Record as a special game outcome
             game_data = {
                 "outcome": "cashout", 
-                "amount": cashout_amount, 
+                "amount": self.bet_amount,  # Record original bet amount
                 "refund_amount": cashout_amount,  # Record cashout amount
-                "lost_amount": remaining_amount,
+                "lost_amount": remaining_amount,  # Record lost amount
                 "timestamp": datetime.now().isoformat()
             }
             casino_data["session_games"].append(game_data)
@@ -2125,6 +2162,9 @@ class BetAmountModal(discord.ui.Modal):
             if total_bet > casino_data["balance"]:
                 await interaction.response.send_message(f"❌ Insufficient balance! Total bet: ₹{total_bet:,}, Balance: ₹{casino_data['balance']:,}", ephemeral=True)
                 return
+
+            # DEDUCT BET AMOUNT FROM BALANCE WHEN BET IS PLACED
+            casino_data["balance"] -= main_amount
 
             # Create game view with the bet amount and side bets
             view = GameView(bet_amount=main_amount, side_bets=side_bets)
