@@ -109,24 +109,27 @@ def has_main_moderator_role():
 
 async def log_command(ctx, command_name, details=""):
     """Log command usage to the configured log channel."""
-    log_channel = bot.get_channel(MODERATION_CONFIG["log_channel_id"])
-    if log_channel:
-        embed = discord.Embed(
-            title="🔧 Command Used",
-            color=0x00ff00,
-            timestamp=datetime.datetime.utcnow()
-        )
-        embed.add_field(name="Command", value=f"`{command_name}`", inline=True)
-        embed.add_field(name="User", value=ctx.author.mention, inline=True)
-        embed.add_field(name="Channel", value=ctx.channel.mention, inline=True)
-        if details:
-            embed.add_field(name="Details", value=details, inline=False)
-        embed.set_footer(text="♠️ BLACK JACK Moderation Logs")
+    try:
+        log_channel = bot.get_channel(MODERATION_CONFIG["log_channel_id"])
+        if log_channel:
+            embed = discord.Embed(
+                title="🔧 Command Used",
+                color=0x00ff00,
+                timestamp=datetime.datetime.utcnow()
+            )
+            embed.add_field(name="Command", value=f"`{command_name}`", inline=True)
+            embed.add_field(name="User", value=ctx.author.mention, inline=True)
+            embed.add_field(name="Channel", value=ctx.channel.mention, inline=True)
+            if details:
+                embed.add_field(name="Details", value=details, inline=False)
+            embed.set_footer(text="♠️ BLACK JACK Moderation Logs")
 
-        try:
             await log_channel.send(embed=embed)
-        except:
-            pass
+            print(f"✅ Logged command: {command_name} by {ctx.author}")
+        else:
+            print(f"❌ Log channel not found: {MODERATION_CONFIG['log_channel_id']}")
+    except Exception as e:
+        print(f"❌ Error logging command {command_name}: {e}")
 
 # =================================================================================================
 # BOT EVENTS AND COMMANDS
@@ -701,6 +704,7 @@ async def setup_tickets(ctx):
     view = TicketView()
     await ticket_channel.send(embed=embed, view=view)
     await ctx.send(f"✅ Ticket system set up in {ticket_channel.mention}")
+    await log_command(ctx, "&setup_tickets", f"Set up ticket system in {ticket_channel.mention}")
 
 @setup_tickets.error
 async def setup_tickets_error(ctx, error):
@@ -1031,7 +1035,7 @@ for command_name in ['say', 'embed', 'announce', 'poll', 'warn', 'dm', 'clear', 
 
 class HelpView(discord.ui.View):
     def __init__(self):
-        super().__init__(timeout=300)
+        super().__init__(timeout=None)
 
     @discord.ui.button(label='🎙️ Voice Commands', style=discord.ButtonStyle.primary, custom_id='help_voice')
     async def help_voice(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -1267,18 +1271,20 @@ async def on_ready():
 async def balance_command(ctx, member: discord.Member = None):
     """Check current casino balance."""
     if member:
-        # Check another user's balance (for moderation purposes)
+        # Check another user's balance (for moderation purposes)  
         embed = discord.Embed(
             title="💰 Casino Balance Check",
             description=f"**{member.display_name}'s Balance:** ₹{casino_data['balance']:,}",
             color=0xffd700
         )
+        await log_command(ctx, "&balance", f"Checked {member.mention}'s balance: ₹{casino_data['balance']:,}")
     else:
         embed = discord.Embed(
             title="💰 Casino Balance",
             description=f"**Current Balance:** ₹{casino_data['balance']:,}",
             color=0xffd700
         )
+        await log_command(ctx, "&balance", f"Checked own balance: ₹{casino_data['balance']:,}")
     await ctx.send(embed=embed)
 
 @bot.command(name='resetbalance')
@@ -1872,7 +1878,7 @@ class GameView(discord.ui.View):
             color = 0xff0000
             outcome_text = "🔴 LOSE"
         elif outcome == "tie":
-            # Tie: return bet amount (push)
+            # Tie: return bet amount (push) - bet was already deducted when placed
             casino_data["balance"] += amount
             balance_change = "₹0 (Push)"
             color = 0xffaa00
@@ -2227,6 +2233,8 @@ async def casino_command(ctx):
     # This command starts the casino interface
     try: await ctx.message.delete()
     except discord.Forbidden: pass
+    
+    await log_command(ctx, "&casino", "Opened casino interface")
 
     view = CasinoView()
     if casino_data["session_active"]:
