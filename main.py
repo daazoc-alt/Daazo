@@ -115,7 +115,7 @@ async def log_command(ctx, command_name, details=""):
             embed = discord.Embed(
                 title="🔧 Command Used",
                 color=0x00ff00,
-                timestamp=datetime.datetime.utcnow()
+                timestamp=datetime.utcnow()
             )
             embed.add_field(name="Command", value=f"`{command_name}`", inline=True)
             embed.add_field(name="User", value=ctx.author.mention, inline=True)
@@ -1779,7 +1779,7 @@ class GameView(discord.ui.View):
 
     @discord.ui.button(label='🟡 TIE', style=discord.ButtonStyle.secondary, custom_id='game_tie')
     async def game_tie(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await self.record_game(interaction, "tie", 0)
+        await self.record_game(interaction, "tie", self.bet_amount)
 
     @discord.ui.button(label='🂡 BLACKJACK', style=discord.ButtonStyle.primary, custom_id='game_blackjack')
     async def game_blackjack(self, interaction: discord.Interaction, button: discord.ui.Button):
