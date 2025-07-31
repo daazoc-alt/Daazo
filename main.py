@@ -691,7 +691,8 @@ async def setup_tickets(ctx):
 
     ticket_channel = bot.get_channel(TICKET_CONFIG["ticket_channel_id"])
     if not ticket_channel:
-        await ctx.send("❌ Ticket channel not found. Please check the channel ID in the configuration.")<replit_final_file>
+        await ctx.send("❌ Ticket channel not found. Please check the channel ID in the configuration.")
+        return
         return
 
     embed = discord.Embed(
