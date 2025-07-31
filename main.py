@@ -122,7 +122,7 @@ async def log_command(ctx, command_name, details=""):
             embed.add_field(name="Channel", value=ctx.channel.mention, inline=True)
             if details:
                 embed.add_field(name="Details", value=details, inline=False)
-            embed.set_footer(text="♠️ BLACK JACK Moderation Logs")
+            embed.set_footer(text="♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Moderation Logs")
 
             await log_channel.send(embed=embed)
             print(f"✅ Logged command: {command_name} by {ctx.author}")
@@ -290,7 +290,7 @@ async def vc(ctx):
         embed.add_field(name="&vc unlock", value="Unlock your current voice channel", inline=False)
         embed.add_field(name="&vc ban @user", value="Temporarily ban user from your VC", inline=False)
         embed.add_field(name="&vc move @user #channel", value="Move user to another voice channel", inline=False)
-        embed.set_footer(text="♠️ BLACK JACK Moderation")
+        embed.set_footer(text="♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Moderation")
         await ctx.send(embed=embed)
 
 @vc.command(name='mute')
@@ -447,7 +447,7 @@ async def voice(ctx, action=None, value=None):
                 log_text += f"`{time_str}` 🔄 {log['user'].mention} moved from **{log['from_channel'].name}** to **{log['to_channel'].name}**\n"
 
         embed.description = log_text if log_text else "No recent activity"
-        embed.set_footer(text="♠️ BLACK JACK Voice Logs")
+        embed.set_footer(text="♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Voice Logs")
         await ctx.send(embed=embed)
         await log_command(ctx, "&voice logs", "Viewed voice channel logs")
 
@@ -460,7 +460,7 @@ async def voice(ctx, action=None, value=None):
         embed.add_field(name="&voice limit <number>", value="Set user limit for your VC", inline=False)
         embed.add_field(name="&vc lock/unlock", value="Lock/unlock your voice channel", inline=False)
         embed.add_field(name="&vc ban @user", value="Temporarily ban user from VC", inline=False)
-        embed.set_footer(text="♠️ BLACK JACK Voice Settings")
+        embed.set_footer(text="♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Voice Settings")
         await ctx.send(embed=embed)
 
     elif action == "limit" and value:
@@ -608,7 +608,7 @@ class TicketView(discord.ui.View):
                 description=f"Welcome {user.mention}! \n\n📝 **Please describe your issue or question below.**\n\n🔒 This is a private channel only visible to you and our support team.",
                 color=0x00ff00
             )
-            embed.set_footer(text="♠️ BLACK JACK Support Team")
+            embed.set_footer(text="♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Support Team")
 
             await ticket_channel.send(embed=embed, view=close_view)
 
@@ -668,7 +668,7 @@ class CloseTicketView(discord.ui.View):
                 description=f"This ticket has been closed by {interaction.user.mention}.\n\n📁 Moved to closed tickets category.",
                 color=0xff0000
             )
-            embed.set_footer(text="♠️ BLACK JACK Support Team")
+            embed.set_footer(text="♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Support Team")
 
             # Remove the close button
             await interaction.response.edit_message(embed=embed, view=None)
@@ -691,7 +691,7 @@ async def setup_tickets(ctx):
 
     ticket_channel = bot.get_channel(TICKET_CONFIG["ticket_channel_id"])
     if not ticket_channel:
-        await ctx.send("❌ Ticket channel not found. Please check the channel ID in the configuration.")
+        await ctx.send("❌ Ticket channel not found. Please check the channel ID in the configuration.")<replit_final_file>
         return
 
     embed = discord.Embed(
@@ -699,7 +699,7 @@ async def setup_tickets(ctx):
         description=TICKET_CONFIG["ticket_description"],
         color=0x0099ff
     )
-    embed.set_footer(text="♠️ BLACK JACK Support System")
+    embed.set_footer(text="♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Support System")
 
     view = TicketView()
     await ticket_channel.send(embed=embed, view=view)
@@ -734,7 +734,7 @@ async def embed_command(ctx, *, message):
     try:
         await ctx.message.delete()
         embed = discord.Embed(description=message, color=0x0099ff)
-        embed.set_footer(text="♠️ BLACK JACK")
+        embed.set_footer(text="♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽")
         await ctx.send(embed=embed)
         await log_command(ctx, "&embed", f"Embedded message: {message[:100]}...")
     except discord.Forbidden:
@@ -751,7 +751,7 @@ async def announce_command(ctx, channel: discord.TextChannel, *, message):
             description=message,
             color=0xff6600
         )
-        embed.set_footer(text="♠️ BLACK JACK Announcement")
+        embed.set_footer(text="♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Announcement")
         await channel.send(embed=embed)
         await log_command(ctx, "&announce", f"Announced in {channel.mention}: {message[:100]}...")
     except discord.Forbidden:
@@ -774,7 +774,7 @@ async def poll_command(ctx, *, content):
             description=f"**{question}**\n\n🇦 {option1}\n🇧 {option2}",
             color=0x00ff00
         )
-        embed.set_footer(text="♠️ BLACK JACK Poll System")
+        embed.set_footer(text="♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Poll System")
 
         poll_msg = await ctx.send(embed=embed)
         await poll_msg.add_reaction('🇦')
@@ -799,7 +799,7 @@ async def warn_command(ctx, member: discord.Member, *, reason):
         embed.add_field(name="User", value=member.mention, inline=True)
         embed.add_field(name="Moderator", value=ctx.author.mention, inline=True)
         embed.add_field(name="Reason", value=reason, inline=False)
-        embed.set_footer(text="♠️ BLACK JACK Moderation")
+        embed.set_footer(text="♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Moderation")
 
         if log_channel:
             await log_channel.send(embed=embed)
@@ -993,7 +993,7 @@ async def nuke_command(ctx):
                 description=f"**{deleted_count}** messages have been deleted from this channel.",
                 color=0x00ff00
             )
-            embed.set_footer(text="♠️ BLACK JACK Moderation")
+            embed.set_footer(text="♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Moderation")
             await ctx.send(embed=embed, delete_after=10)
 
             await log_command(ctx, "&nuke", f"Nuked channel {ctx.channel.mention} - {deleted_count} messages deleted")
@@ -1070,7 +1070,7 @@ class HelpView(discord.ui.View):
             inline=False
         )
 
-        embed.set_footer(text="🔒 Voice Commands: Low-level or Main Moderator Role | ♠️ BLACK JACK Moderation")
+        embed.set_footer(text="🔒 Voice Commands: Low-level or Main Moderator Role | ♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Moderation")
         await interaction.response.edit_message(embed=embed, view=self)
 
     @discord.ui.button(label='⚙️ General Commands', style=discord.ButtonStyle.secondary, custom_id='help_general')
@@ -1117,7 +1117,7 @@ class HelpView(discord.ui.View):
             inline=False
         )
 
-        embed.set_footer(text="🔒 Requires Main Moderator Role | ♠️ BLACK JACK Moderation")
+        embed.set_footer(text="🔒 Requires Main Moderator Role | ♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Moderation")
         await interaction.response.edit_message(embed=embed, view=self)
 
     @discord.ui.button(label='🎫 Ticket System', style=discord.ButtonStyle.success, custom_id='help_tickets')
@@ -1156,7 +1156,7 @@ class HelpView(discord.ui.View):
             inline=False
         )
 
-        embed.set_footer(text="🔧 Setup required in configuration | ♠️ BLACK JACK Support")
+        embed.set_footer(text="🔧 Setup required in configuration | ♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Support")
         await interaction.response.edit_message(embed=embed, view=self)
 
 # =================================================================================================
@@ -1168,7 +1168,7 @@ async def owner_command(ctx):
     """Display detailed information about the bot owner."""
     embed = discord.Embed(
         title="👑 Bot Owner Information",
-        description="**Meet the creator behind ♠️ BLACK JACK Bot**",
+        description="**Meet the creator behind ♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Bot**",
         color=0xffd700
     )
 
@@ -1196,7 +1196,7 @@ async def owner_command(ctx):
         inline=False
     )
 
-    embed.set_footer(text="♠️ BLACK JACK Bot - Crafted with ❤️ by ᴅᴀᴀᴢᴏ | ʀɪᴏ")
+    embed.set_footer(text="♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Bot - Crafted with ❤️ by ᴅᴀᴀᴢᴏ | ʀɪᴏ")
     embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/1234567890123456789.png")  # You can replace with actual owner avatar
 
 # =================================================================================================
@@ -1207,7 +1207,7 @@ async def owner_command(ctx):
 async def help_command(ctx):
     """Interactive help panel with buttons for different command categories."""
     embed = discord.Embed(
-        title="♠️ BLACK JACK BOT - Command Help Panel",
+        title="♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 BOT - Command Help Panel",
         description="**Premium Discord Bot for Server Management & Moderation**\n\n🎮 **Select a category below to view detailed commands:**",
         color=0x000000
     )
@@ -1296,10 +1296,10 @@ async def reset_balance_command(ctx, member: discord.Member, amount: int):
         if amount < 0:
             await ctx.send("❌ Balance amount must be positive!", delete_after=5)
             return
-        
+
         old_balance = casino_data['balance']
         casino_data['balance'] = amount
-        
+
         embed = discord.Embed(
             title="💰 Balance Reset",
             description=f"**{member.display_name}'s balance has been reset**\n\n**Old Balance:** ₹{old_balance:,}\n**New Balance:** ₹{amount:,}",
@@ -1407,7 +1407,7 @@ class CasinoView(discord.ui.View):
         )
         embed.add_field(name="💰 Current Balance", value=f"₹{casino_data['balance']:,}", inline=True)
         embed.add_field(name="🎮 Session Games", value=f"{len(casino_data['session_games'])}", inline=True)
-        embed.add_field(name="⏱️ Session Duration", value=f"{get_session_duration()}", inline=True)
+        embed.add_field(name="⏱️ Session Duration", value=f"{get_session_duration()} minutes", inline=True)
         embed.set_footer(text="♠️ BlackJack Casino | Session in Progress")
         await interaction.response.edit_message(embed=embed, view=view)
 
@@ -1996,8 +1996,7 @@ class CashOutModal(discord.ui.Modal):
         self.amount_input = discord.ui.TextInput(label="Enter amount to cash out", placeholder="e.g., 500", required=True, max_length=10)
         self.add_item(self.amount_input)
 
-    async def on_submit(self, interaction: discord.Interaction):
-        try:
+    async def on_submit(self, interaction: discord.Interaction):        try:
             amount = int(self.amount_input.value.replace('₹', '').replace(',', ''))
             if amount <= 0:
                 await interaction.response.send_message("❌ Amount must be a positive number!", ephemeral=True)
@@ -2024,8 +2023,8 @@ class CashOutModal(discord.ui.Modal):
             )
             embed.add_field(name="💰 New Balance", value=f"₹{casino_data['balance']:,}", inline=True)
             embed.add_field(name="🎮 Session Games", value=f"{len(casino_data['session_games'])}", inline=True)
-            embed.add_field(name="⏱️ Session Duration", value=f"{get_session_duration()}", inline=True)
-            embed.set_footer(text="♠️ BlackJack Casino")
+            embed.add_field(name="⏱️ Session Duration", value=f"{get_session_duration()} minutes", inline=True)
+            embed.set_footer(text="♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Casino")
             await interaction.response.edit_message(embed=embed, view=view)
         except ValueError:
             await interaction.response.send_message("❌ Please enter a valid number for the amount!", ephemeral=True)
@@ -2082,8 +2081,8 @@ class GameCashOutModal(discord.ui.Modal):
             )
             embed.add_field(name="💰 New Balance", value=f"₹{casino_data['balance']:,}", inline=True)
             embed.add_field(name="🎮 Session Games", value=f"{len(casino_data['session_games'])}", inline=True)
-            embed.add_field(name="⏱️ Session Duration", value=f"{get_session_duration()}", inline=True)
-            embed.set_footer(text="♠️ BlackJack Casino")
+            embed.add_field(name="⏱️ Session Duration", value=f"{get_session_duration()} minutes", inline=True)
+            embed.set_footer(text="♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Casino")
             await interaction.response.edit_message(embed=embed, view=view)
         except ValueError:
             await interaction.response.send_message("❌ Please enter a valid number for the amount!", ephemeral=True)
@@ -2116,7 +2115,7 @@ class BalanceModal(discord.ui.Modal):
             embed.add_field(name="💰 Starting Balance", value=f"₹{balance:,}", inline=True)
             embed.add_field(name="🎮 Games Played", value="0", inline=True)
             embed.add_field(name="⏱️ Session Started", value="Just now", inline=True)
-            embed.set_footer(text="♠️ BlackJack Casino | Good luck!")
+            embed.set_footer(text="♠️ 𝙳𝙰𝚂𝙴𝚃𝚃𝙰𝙽 Casino | Good luck!")
             await interaction.response.edit_message(embed=embed, view=view)
         except ValueError:
             await interaction.response.send_message("❌ Please enter a valid number for the balance!", ephemeral=True)
@@ -2233,7 +2232,7 @@ async def casino_command(ctx):
     # This command starts the casino interface
     try: await ctx.message.delete()
     except discord.Forbidden: pass
-    
+
     await log_command(ctx, "&casino", "Opened casino interface")
 
     view = CasinoView()
@@ -2245,7 +2244,7 @@ async def casino_command(ctx):
         embed = discord.Embed(title="🎰 BlackJack Casino - Session Active", description="**🎲 Welcome back to your active session!**", color=0x00ff00)
         embed.add_field(name="💰 Current Balance", value=f"₹{casino_data['balance']:,}", inline=True)
         embed.add_field(name="🎮 Session Games", value=f"{len(casino_data['session_games'])}", inline=True)
-        embed.add_field(name="⏱️ Session Duration", value=f"{get_session_duration()}", inline=True)
+        embed.add_field(name="⏱️ Session Duration", value=f"{get_session_duration()} minutes", inline=True)
     else:
         embed = discord.Embed(title="🎰 BlackJack Casino", description="**Welcome to the premium BlackJack statistics tracker!**\n\nClick 'Start Session' to begin tracking!", color=0xffd700)
         embed.add_field(name="🎲 How it Works", value="1️⃣ Start a session with your balance\n2️⃣ Record each game as WIN or LOSE\n3️⃣ Enter bet amounts for tracking\n4️⃣ View detailed statistics & charts", inline=False)
