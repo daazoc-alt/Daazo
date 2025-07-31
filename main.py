@@ -1997,7 +1997,8 @@ class CashOutModal(discord.ui.Modal):
         self.amount_input = discord.ui.TextInput(label="Enter amount to cash out", placeholder="e.g., 500", required=True, max_length=10)
         self.add_item(self.amount_input)
 
-    async def on_submit(self, interaction: discord.Interaction):        try:
+    async def on_submit(self, interaction: discord.Interaction):
+        try:
             amount = int(self.amount_input.value.replace('₹', '').replace(',', ''))
             if amount <= 0:
                 await interaction.response.send_message("❌ Amount must be a positive number!", ephemeral=True)
