@@ -1704,17 +1704,70 @@ class CasinoView(discord.ui.View):
                 ax1.text(bar.get_x() + bar.get_width()/2., height + max(amounts)*0.01,
                         f'₹{amount:,}', ha='center', va='bottom', color='white', fontsize=8)
 
-            # Bottom chart - Running profit trend
+            # Bottom chart - Running profit trend with individual game details
             ax2.set_facecolor('#36393f')
-            line = ax2.plot(game_numbers, running_profit, color='#ffd700', linewidth=3, marker='o', markersize=6, label='Net Profit')
+            line = ax2.plot(game_numbers, running_profit, color='#ffd700', linewidth=3, marker='o', markersize=8, label='Net Profit')
             ax2.axhline(0, color='white', linestyle='--', linewidth=2, alpha=0.7)
             ax2.fill_between(game_numbers, running_profit, 0, where=[p >= 0 for p in running_profit],
                            color='#00ff41', alpha=0.3, interpolate=True, label='Profit Zone')
             ax2.fill_between(game_numbers, running_profit, 0, where=[p < 0 for p in running_profit],
                            color='#ff4757', alpha=0.3, interpolate=True, label='Loss Zone')
+
+            # Add individual game profit/loss and balance labels at each point
+            starting_balance = casino_data.get('starting_balance', 1000)
+            current_balance = starting_balance
+            
+            for i, (game_num, profit, game) in enumerate(zip(game_numbers, running_profit, games)):
+                # Calculate individual game profit/loss
+                if game["outcome"] == "win":
+                    game_profit = game["amount"]
+                    current_balance += game_profit
+                elif game["outcome"] == "lose":
+                    game_profit = -game["amount"]
+                    current_balance -= game["amount"]
+                elif game["outcome"] == "blackjack":
+                    game_profit = int(game["amount"] * 1.5)
+                    current_balance += game_profit
+                elif game["outcome"] == "tie":
+                    game_profit = 0
+                    # Balance doesn't change for ties
+                elif game["outcome"] == "cashout":
+                    game_profit = game.get("refund_amount", 0) - game.get("lost_amount", 0)
+                    current_balance += game.get("refund_amount", 0) - game.get("lost_amount", 0)
+                else:
+                    game_profit = 0
+                
+                # Add side bet winnings
+                game_profit += game.get("side_bet_winnings", 0)
+                current_balance += game.get("side_bet_winnings", 0)
+                
+                # Create label with profit/loss and total balance
+                if game_profit > 0:
+                    label = f"+₹{game_profit:,}\n(₹{current_balance:,})"
+                    label_color = '#00ff41'
+                elif game_profit < 0:
+                    label = f"-₹{abs(game_profit):,}\n(₹{current_balance:,})"
+                    label_color = '#ff4757'
+                else:
+                    label = f"₹0\n(₹{current_balance:,})"
+                    label_color = '#ffaa00'
+                
+                # Position label above or below the point based on space
+                y_offset = 20 if profit >= 0 else -30
+                ax2.annotate(label, 
+                           xy=(game_num, profit), 
+                           xytext=(0, y_offset), 
+                           textcoords='offset points',
+                           ha='center', 
+                           va='bottom' if profit >= 0 else 'top',
+                           fontsize=8,
+                           color=label_color,
+                           fontweight='bold',
+                           bbox=dict(boxstyle='round,pad=0.3', facecolor='black', alpha=0.7, edgecolor=label_color))
+
             ax2.set_xlabel('Game Number', color='white', fontweight='bold')
             ax2.set_ylabel('Session Net Profit (₹)', color='white', fontweight='bold')
-            ax2.set_title('📈 Cumulative Profit/Loss Trend', color='#ffd700', fontsize=14, fontweight='bold', pad=15)
+            ax2.set_title('📈 Cumulative Profit/Loss Trend with Game Details', color='#ffd700', fontsize=14, fontweight='bold', pad=15)
             ax2.grid(True, alpha=0.3, linestyle=':')
             ax2.legend(loc='upper left')
 
